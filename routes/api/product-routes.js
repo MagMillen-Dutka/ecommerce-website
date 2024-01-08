@@ -7,27 +7,37 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 router.get('/', (req, res) => {
   // find all products
   // be sure to include its associated Category and Tag data
+  try {
+    const products = Product.findAll({
+      include: [{ model: Category }, { model: Tag }],
+    });
+    res.status(200).json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Products not found!" });
+  }
 });
 
 // get one product
 router.get('/:id', (req, res) => {
   // find a single product by its `id`
   // be sure to include its associated Category and Tag data
+  try {
+    const product = Product.findByPk(req.params.id, {
+      include: [{ model: Category }, { model: Tag }],
+    });
+    !product
+      ? res.status(404).json({ message: "Product not found!" })
+      : res.status(200).json(product);
+  } catch (err) {
+    res.status(500).json({ message: "Product not found!" });
+  }
 });
 
 // create new product
 router.post('/', (req, res) => {
-  /* req.body should look like this...
-    {
-      product_name: "Basketball",
-      price: 200.00,
-      stock: 3,
-      tagIds: [1, 2, 3, 4]
-    }
-  */
+
   Product.create(req.body)
     .then((product) => {
-      // if there's product tags, we need to create pairings to bulk create in the ProductTag model
       if (req.body.tagIds.length) {
         const productTagIdArr = req.body.tagIds.map((tag_id) => {
           return {
@@ -94,6 +104,16 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
   // delete one product by its `id` value
+  try {
+    const deleted = Product.destroy({ where: { id: req.params.id } });
+    // If the product is not found, send a 404 status with a custom message
+    // Otherwise, return the deleted data
+    !deleted
+      ? res.status(404).json({ message: "ID not found" })
+      : res.status(200).json(deleted);
+  } catch (err) {
+    res.status(500).json({ message: "Product was not deleted", error: err });
+  }
 });
 
 module.exports = router;
