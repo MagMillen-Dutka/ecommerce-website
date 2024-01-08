@@ -18,15 +18,15 @@ ProductTag.init(
       references: {
         model: "tag", // Link to the tag table
         key: "id", // Link to the 'id' column in the 'tag' table
-      },
+      }
     },
     product_id: {
       type: DataTypes.INTEGER, // Set the data type to INTEGER
       references: {
         model: "product", // Link to the product table
         key: "id", // Link to the 'id' column in the 'product' table
-      },
-    },
+      }
+    }
   },
   {
     sequelize,
